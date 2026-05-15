@@ -1,0 +1,31 @@
+# JAI standard text policy
+* text=auto
+
+# Governance docs should stay LF-normalized in Git and working tree
+*.md text eol=lf
+JAI_VERSION text eol=lf
+.gitignore text eol=lf
+.gitattributes text eol=lf
+
+# Data/manifest text files
+*.csv text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+*.toml text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# Binary/archive artifacts
+*.zip binary
+*.7z binary
+*.tar binary
+*.gz binary
+*.tgz binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.db binary
+*.sqlite binary
+*.dump binary
