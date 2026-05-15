@@ -1,0 +1,41 @@
+# Local runtime and credential material
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+
+# Generated backup/archive artifacts
+*.zip
+*.7z
+*.tar
+*.tar.gz
+*.tgz
+*.bak
+*.sha256.txt
+*-manifest-*.csv
+manifest-*.csv
+
+# Database/dump artifacts
+*.db
+*.sqlite
+*.dump
+
+# Dependency/cache/temp folders
+node_modules/
+.cache/
+cache/
+tmp/
+temp/
+__pycache__/
+backups/
+backup/
+runtime/
+
+# Out-of-scope project folders if ever copied here accidentally
+SCC/
+Trend Scanner/
+PO3 Scanner/
