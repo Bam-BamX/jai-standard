@@ -53,7 +53,7 @@ For Fast Lane work, batched analogous changes are permitted per [`JAI_AUTOMATION
 
 For any change that:
 - Touches more than one file in source code, OR
-- Touches the project's `jai/` core (CLAUDE.md, SECURITY_RULES, WORKFLOW_RULES, THREAT_MODEL), OR
+- Touches root `AGENTS.md` or the project's `jai/` core (CLAUDE.md, SECURITY_RULES, WORKFLOW_RULES, THREAT_MODEL), OR
 - Crosses any Strict Lane trigger
 
 A plan is written before the work begins. The plan format is defined per project in `<project>/jai/skills/planning.skill.md` (lifted from canonical at `~/.claude/jai-standard/skills/planning.skill.md` per lazy-migration). The plan goes to operator review before execution.
@@ -83,17 +83,20 @@ These changes require explicit operator approval at the Orchestrator gate (per [
 
 - Any commit
 - Any push (separate approval from commit)
+- Any direct push to `main` (must be named explicitly; never inferred from ordinary push approval)
 - Any branch creation, deletion, force-push, or merge
+- Any merge (separate approval from push or PR approval)
 - Any dependency add/upgrade/downgrade
 - Any Docker change (compose, Dockerfile, lifecycle)
 - Any migration
 - Any provider config change
 - Any scheduler change
+- Any deploy, rebuild, restart, runtime-state change, or flag flip
 - Any host-binding change
 - Any change to `.claude/settings*.json`
 - Any change crossing a Strict Lane trigger per [`JAI_AGENT_ARCHITECTURE.md §5`](file:///C:/Users/Mitch/.claude/jai-standard/JAI_AGENT_ARCHITECTURE.md)
 
-Approval is **per-batch** for Fast/Review Lanes and **per-action** for Strict Lane. Approval is **not transitive** across batches or actions.
+Approval is **per-batch** for Fast/Review Lanes and **per-action** for Strict Lane. Approval is **not transitive** across batches or actions: commit approval does not imply push, push does not imply merge, merge does not imply deploy/rebuild/restart, and implementation approval does not imply flag-flip approval.
 
 ## 9. Forbidden Without Operator Approval (universal)
 

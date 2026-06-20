@@ -34,8 +34,9 @@ report; never modifies any project.
 1. `~/.claude/jai-standard/JAI_VERSION` — current global target.
 2. `~/.claude/jai-standard/JAI_PROJECT_REGISTRY.md` — list of project
    paths to walk.
-3. For each registered project: `<path>/jai/CLAUDE.md` front-matter
-   only (read; do not parse code).
+3. For each registered project: root `<path>/AGENTS.md` presence/content
+   summary for Codex entrypoint drift, plus `<path>/jai/CLAUDE.md`
+   front-matter only (read; do not parse code).
 
 ## 4. Forbidden Actions
 
@@ -68,9 +69,14 @@ For each entry in `JAI_PROJECT_REGISTRY.md`:
 5. **Declared JAI version.** Read `<path>/jai/CLAUDE.md` front-matter.
    Parse the `jai_standard:` field. If front-matter absent or field
    missing → record `unknown`.
-6. **Drift comparison.** Compare declared version against global
+6. **Codex entrypoint.** Check whether `<path>/AGENTS.md` exists. For
+   Codex-enabled projects at v1.8 or later, missing `AGENTS.md` records
+   `codex entrypoint missing`. If present, verify it is a thin pointer to
+   the project `CLAUDE.md` and/or `jai/` framework and does not weaken
+   approval gates. Weakened gates record `codex entrypoint divergent`.
+7. **Drift comparison.** Compare declared version against global
    `JAI_VERSION` per §6 below.
-7. **Last audit date.** Read from registry; do not update yet (updates
+8. **Last audit date.** Read from registry; do not update yet (updates
    are a write step that happens only on operator approval after the
    audit completes).
 
@@ -88,6 +94,8 @@ field records `unknown` rather than guessing.
 | `not onboarded` | Path exists but no `<path>/jai/` directory. |
 | `not a git repo` | Path exists but is not a git working tree. |
 | `path missing` | Registry path does not resolve. |
+| `codex entrypoint missing` | Project is Codex-enabled or declares v1.8+, but root `AGENTS.md` is absent. |
+| `codex entrypoint divergent` | Root `AGENTS.md` weakens JAI gates or bypasses project `CLAUDE.md` / `jai/`. |
 
 A project at `none` requires no action. Projects at `minor` are
 candidates for the next migration cycle (operator priority). Projects
@@ -104,6 +112,9 @@ context (e.g., dirty tree, non-default branch, last audit date).
 | project path | repo name | current branch | git status | JAI status | declared JAI version | target JAI version | drift level | last audited | notes | recommended next action |
 |---|---|---|---|---|---|---|---|---|---|---|
 
+The `notes` column must include `Codex entrypoint: present`, `Codex entrypoint:
+missing`, `Codex entrypoint: divergent`, or `Codex entrypoint: not applicable`.
+
 A summary line below the table:
 
 ```
@@ -119,6 +130,8 @@ N projects audited · X clean · Y minor drift · Z major drift · W not onboard
 - `not onboarded` → `Run JAI new-repo intake on <path>.`
 - `not a git repo` → `Initialize git or remove from registry.`
 - `path missing` → `Update or remove registry entry.`
+- `codex entrypoint missing` → `Schedule Migration Pass to add thin root AGENTS.md.`
+- `codex entrypoint divergent` → `Halt and reconcile AGENTS.md against project JAI gates.`
 
 ## 9. Approval Gate
 

@@ -36,6 +36,7 @@ Roles:
 - `JAI_RESEARCH_BACKED_PLAN_MODE.md` defines the read-only six-phase workflow used by the `JAI research-backed plan` command (§14). The mode stops at an approval gate before any execution; plan approval is not execution approval.
 - `JAI_GOVERNANCE_REVIEW.md` defines the read-only audit workflow for the global JAI standard itself, used by the `JAI governance review` command (§15). All findings route through Enhancement Intake (§8) and `JAI standard update` (§9); the command never edits global files directly.
 - `JAI_AGENT_ARCHITECTURE.md` defines the four-role conceptual model (Orchestrator + Builder + Security/Risk Reviewer + Test/Validation Reviewer) under which any JAI-conformant assistant operates when a task crosses build → review → validate (added v1.7). Agent 2 reuses `JAI_RUNTIME_ADVISORY_REVIEWER.md` checklists in full; Agent 1 reuses `JAI_DEV_RESPONSE_FORMAT.md §3` ten-section output shape in full; S1–S8 from `policies/SAFETY_RULES.md` inherited verbatim. Conceptual personas only — not Claude Code subagent delegation. No new top-level command in §3–§15 and no new alias in §16 are added by v1.7.
+- Project root `AGENTS.md` is the Codex entrypoint recognized in v1.8. It is audited as a thin pointer into root `CLAUDE.md` and/or project `jai/`; it cannot weaken JAI approval gates.
 - §16 of this file contains **conversational aliases** (added v1.6) — short navigation frames that route to formal commands; not formal commands themselves; inherit S1–S8 and §2 universal safety rules unchanged.
 
 ---
@@ -59,7 +60,10 @@ Every command in this file inherits these safety rules:
 - No branch deletion.
 - No commits.
 - No pushes.
+- No direct push to `main`.
+- No merge.
 - No force operations.
+- No deploy, rebuild, restart, runtime-state change, or flag flip.
 - No file writes until the user explicitly approves the proposed changes.
 
 If a workflow needs to write files, it must first return a proposal in chat.
@@ -128,6 +132,7 @@ If a workflow needs to write files, it must first return a proposal in chat.
 - Global `JAI_STANDARD.md`
 - Global `JAI_GOVERNANCE_STACK.md`
 - Project `jai/CLAUDE.md`
+- Project root `AGENTS.md`, if present or required by the target JAI version
 - Project `jai/CURRENT_STATE.md`
 - Project `jai/PROJECT_CONTEXT.md`
 - Project `jai/SECURITY_RULES.md`
@@ -140,6 +145,7 @@ If a workflow needs to write files, it must first return a proposal in chat.
 - Identify stale sections.
 - Identify undocumented project exceptions.
 - Identify conflicts between project rules and global rules.
+- Identify missing, stale, or gate-weakening root `AGENTS.md` entries.
 - Propose a Migration Pass.
 
 **Forbidden actions.**
@@ -157,6 +163,7 @@ If a workflow needs to write files, it must first return a proposal in chat.
 - missing files or sections
 - stale rules
 - project-specific exceptions
+- root `AGENTS.md` status
 - conflicts
 - proposed Migration Pass
 - exact files that would be changed
@@ -180,6 +187,7 @@ If a workflow needs to write files, it must first return a proposal in chat.
 **Allowed actions.**
 - Apply only the approved docs-only changes.
 - Update project `jai/CLAUDE.md` version pointer if approved.
+- Create or update project root `AGENTS.md` if approved.
 - Create or update `jai/PROJECT_EXCEPTIONS.md` if approved.
 - Append a project `jai/DECISION_LOG.md` entry if approved.
 - Report final git status.
@@ -226,6 +234,7 @@ If a workflow needs to write files, it must first return a proposal in chat.
 - Check whether each folder is a git repo.
 - Check whether `/jai` exists.
 - Check whether `jai/CLAUDE.md` exists.
+- Check whether root `AGENTS.md` exists and preserves JAI gates.
 - Check declared JAI version.
 - Check git branch/status.
 - Identify projects that are not onboarded.
@@ -244,8 +253,8 @@ If a workflow needs to write files, it must first return a proposal in chat.
 
 **Required output.** A table with:
 
-| project path | repo name | current branch | JAI status | declared JAI version | target JAI version | drift level | recommended next action |
-|---|---|---|---|---|---|---|---|
+| project path | repo name | current branch | JAI status | Codex entrypoint | declared JAI version | target JAI version | drift level | recommended next action |
+|---|---|---|---|---|---|---|---|---|
 
 `drift level` is one of: `none` / `minor` / `major` / `not onboarded`.
 

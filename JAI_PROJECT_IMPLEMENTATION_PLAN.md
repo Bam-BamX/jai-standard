@@ -182,46 +182,48 @@ End the Pass 1 report with one sentence: typically "Run Pass 2 to create `<proje
 
 ## 5 · Pass 2 — Create Project `/jai/`
 
-**Purpose:** Generate the project's `/jai/` profile from the Pass 1 audit. Pass 2 is **write-after-approval** — the proposal (file list + content per file) returns in chat first, the user approves, then files are written.
+**Purpose:** Generate the project's `/jai/` profile from the Pass 1 audit. For Codex-enabled projects, also generate root `AGENTS.md` as a thin Codex entrypoint over the project `CLAUDE.md` and `/jai/` framework. Pass 2 is **write-after-approval** — the proposal (file list + content per file) returns in chat first, the user approves, then files are written.
 
 ### 5.1 · Required structure
 
 ```
-<project>/jai/
-├── CLAUDE.md
-├── CURRENT_STATE.md
-├── PROJECT_CONTEXT.md
-├── ARCHITECTURE.md
-├── INFRASTRUCTURE.md
-├── SECURITY_RULES.md
-├── THREAT_MODEL.md
-├── VULNERABILITY_REVIEW.md
-├── WORKFLOW_RULES.md
-├── DECISION_LOG.md
-├── CLEANUP_REGISTER.md
-├── HANDOFF.md
-├── PROJECT_EXCEPTIONS.md
-├── archive/
-│   └── README.md
-├── skills/
-│   ├── implementation_review.skill.md
-│   ├── frontend_change.skill.md
-│   ├── backend_change.skill.md
-│   ├── infra_audit.skill.md
-│   ├── security_review.skill.md
-│   ├── secret_scanning.skill.md
-│   ├── dependency_review.skill.md
-│   ├── threat_modeling.skill.md
-│   ├── docs_cleanup.skill.md
-│   └── git_sync.skill.md
-└── templates/
-    ├── dev_prompt_template.md
-    ├── review_report_template.md
-    ├── security_report_template.md
-    └── handoff_template.md
+<project>/
+├── AGENTS.md   # Codex-enabled projects only; thin pointer, not a CLAUDE.md copy
+└── jai/
+    ├── CLAUDE.md
+    ├── CURRENT_STATE.md
+    ├── PROJECT_CONTEXT.md
+    ├── ARCHITECTURE.md
+    ├── INFRASTRUCTURE.md
+    ├── SECURITY_RULES.md
+    ├── THREAT_MODEL.md
+    ├── VULNERABILITY_REVIEW.md
+    ├── WORKFLOW_RULES.md
+    ├── DECISION_LOG.md
+    ├── CLEANUP_REGISTER.md
+    ├── HANDOFF.md
+    ├── PROJECT_EXCEPTIONS.md
+    ├── archive/
+    │   └── README.md
+    ├── skills/
+    │   ├── implementation_review.skill.md
+    │   ├── frontend_change.skill.md
+    │   ├── backend_change.skill.md
+    │   ├── infra_audit.skill.md
+    │   ├── security_review.skill.md
+    │   ├── secret_scanning.skill.md
+    │   ├── dependency_review.skill.md
+    │   ├── threat_modeling.skill.md
+    │   ├── docs_cleanup.skill.md
+    │   └── git_sync.skill.md
+    └── templates/
+        ├── dev_prompt_template.md
+        ├── review_report_template.md
+        ├── security_report_template.md
+        └── handoff_template.md
 ```
 
-13 root-level files + 1 archive subdir + 10 skills + 4 templates = **28 files** in a fresh Pass 2.
+Inside `<project>/jai/`: 13 root-level files + 1 archive subdir + 10 skills + 4 templates = **28 files** in a fresh Pass 2. Codex-enabled projects add one approved root file, `<project>/AGENTS.md`, for a total of **29 files**.
 
 ### 5.2 · File-by-file content guide
 
@@ -230,6 +232,7 @@ Each project's content differs; this is the **shape** each file holds.
 | File | Contents |
 |---|---|
 | `CLAUDE.md` | Front-matter version pointer (§6) + project scope statement + the two-tier read model (§8) + any project-specific entry-point notes. |
+| `../AGENTS.md` | Codex entrypoint outside `/jai/`. Thin pointer to root `CLAUDE.md` and/or `jai/`; repeats only Codex-critical gates and never weakens JAI rules. |
 | `CURRENT_STATE.md` | What's currently live, what's pending, recent changes, observation phases. Updated frequently. |
 | `PROJECT_CONTEXT.md` | What this project does, who uses it, why it exists. Stable; rarely changes. |
 | `ARCHITECTURE.md` | Services, components, data flow, key abstractions. Source of truth: §4.2 docs + code reading. |
@@ -274,8 +277,8 @@ Each skill is a `.skill.md` file describing a repeatable workflow. Project-insta
 
 1. **Propose** the file list + per-file content in chat. The proposal is the Pass 1 audit report extended with concrete file content.
 2. **Wait for approval** per S10. User approves all-or-some; writes only happen after explicit `apply` / `do it`.
-3. **Write** the approved files. Order doesn't matter functionally; sensible order is `CLAUDE.md` first (so the version pointer is set early), then root files, then `skills/`, then `templates/`, then `archive/README.md`.
-4. **Verify** with `git status` — only files inside `<project>/jai/` should appear; nothing outside.
+3. **Write** the approved files. Order doesn't matter functionally; sensible order is `CLAUDE.md` first (so the version pointer is set early), root `AGENTS.md` next for Codex-enabled projects, then `/jai/` root files, then `skills/`, then `templates/`, then `archive/README.md`.
+4. **Verify** with `git status` — only the approved root `AGENTS.md` plus files inside `<project>/jai/` should appear; nothing else.
 5. **Report** per §9.
 
 ---
@@ -453,6 +456,7 @@ Carry-over from existing standing rules. Restated for clarity.
 | **C4** | **No force push unless explicitly approved.** No `--force`, no `--force-with-lease`, no `+refs/heads/...:` refspec. To main/master: never force-push, even with explicit approval — surface and discuss. |
 | **C5** | **No bypassing hooks.** No `--no-verify`, no `--no-gpg-sign`. If a hook fails, fix the underlying issue. |
 | **C6** | **Default to a feature branch for Pass 2.** A fresh `/jai/` is a meaningful change; prefer a branch like `chore/jai-init` over committing directly to main. The branch + PR + review path is the same as any other change. |
+| **C7** | **No direct push to `main`, no merge, and no deploy/rebuild/restart/flag flip unless separately approved.** Each action requires explicit operator approval naming that action. Approval for one action is not approval for the next. |
 
 ---
 
@@ -477,12 +481,12 @@ For experienced operators applying this plan to a new repo:
     [ ] §4.12 next step
 [ ] User approves Pass 2
 [ ] Pass 2 — files written
-    [ ] §5.1 13 root files + archive/ + skills/ (10) + templates/ (4) = 28 files
+    [ ] §5.1 optional root AGENTS.md for Codex-enabled projects + 13 /jai root files + archive/ + skills/ (10) + templates/ (4)
     [ ] §6 version pointer in jai/CLAUDE.md
     [ ] §7 PROJECT_EXCEPTIONS.md created
     [ ] §8 two-tier read model in jai/CLAUDE.md
 [ ] §9 final report returned in chat
-[ ] §10 commit/push only after approval
+[ ] §10 commit/push/merge/deploy/rebuild/restart/flag flip only after separate approval
 ```
 
 ---

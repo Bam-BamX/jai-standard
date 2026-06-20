@@ -23,6 +23,7 @@ A response that follows this format is reviewable: a downstream reviewer in `JAI
 Use this format when:
 
 - Closing out a batch (any work that produced a diff, commit, branch op, or service change).
+- Closing out any file-changing or state-changing phase, even if the change is docs-only.
 - Reporting an audit result.
 - Opening a PR and reporting back.
 - Ending a multi-step task.
@@ -55,6 +56,9 @@ Itemized receipts of every modification. Tables preferred. Should answer: which 
 | `<branch>` | `<created / merged / deleted>` |
 
 Required for any session that produced a diff, a commit, a branch operation, a service start/stop, or a config change. Replaceable with "no assets touched" for read-only sessions.
+
+For Codex/Claude parity, this section must also state whether any merge,
+deploy, rebuild, restart, runtime-state change, or flag flip occurred.
 
 ### Section 4 — What Was Not Touched
 
@@ -106,6 +110,12 @@ One-line footer asserting batch state. Allowed values:
 - **Batch halted — `<reason>`.** (Reserved for blockers.)
 
 Mandatory final line. The operator should be able to scroll to the bottom and instantly know the state.
+
+For any file-changing or state-changing phase, the closeout must explicitly
+confirm commit status, push status, merge status, deploy/rebuild/restart
+status, flag-flip status, remaining gated actions, and the recommended next
+operator action. These confirmations are required even when the answer uses a
+short-form variant.
 
 ## 4. Section Omission Rules
 
