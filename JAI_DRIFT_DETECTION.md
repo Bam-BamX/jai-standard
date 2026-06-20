@@ -12,6 +12,7 @@ Today, project conformance is **declarative**: a project's `CLAUDE.md` mentions 
 
 This spec replaces declaration-only with a **machine-readable Drift Manifest** at `<project>/jai/JAI_CONFORMANCE.md` that:
 - Lists every required file from the project's declared version
+- Lists root assistant entrypoints such as `CLAUDE.md` and Codex `AGENTS.md`
 - Records present/absent/divergent status per file
 - Records lifted-file checksums vs current global
 - Surfaces all `PROJECT_EXCEPTIONS.md` entries with their classifications
@@ -43,6 +44,10 @@ adopted_optional_files:              # files the project opts into per JAI_OVERL
 - [x] WORKFLOW_RULES.md (present, extends policies/WORKFLOW_RULES.md@vX.Y)
 - [x] THREAT_MODEL.md (present, extends policies/THREAT_MODEL_BASELINE.md@vX.Y)
 - [x] JAI_CONFORMANCE.md (this file)
+
+## Root Assistant Entrypoints (per JAI_OVERLAY_SCHEMA.md §1A at vX.Y)
+- [x] ../CLAUDE.md (present / not applicable)
+- [x] ../AGENTS.md (present for Codex-enabled project; thin pointer; no weakened gates)
 
 ## Recommended Files (per JAI_OVERLAY_SCHEMA.md §2)
 - [x] DECISION_LOG.md (present)
@@ -111,6 +116,12 @@ Step 2: Validate declared version
 Step 3: Read JAI_OVERLAY_SCHEMA.md §1 required files for declared version
   - For each required file: check presence in <project>/jai/
   - Missing → DRIFT_BLOCKING (record which files)
+
+Step 3A: Read JAI_OVERLAY_SCHEMA.md §1A root assistant entrypoints
+  - For Codex-enabled projects, check <project>/AGENTS.md
+  - If AGENTS.md is missing after the project declares a version that requires it → DRIFT_BLOCKING
+  - If AGENTS.md weakens approval gates, direct-main protection, merge gates, deploy/rebuild/restart gates, flag-flip gates, or mandatory closeout → DIVERGENT
+  - Confirm AGENTS.md is thin and points to project CLAUDE.md and/or <project>/jai/ rather than blindly copying another agent file
 
 Step 4: Read JAI_OVERLAY_SCHEMA.md §2 recommended files for declared version
   - For each recommended file: check presence

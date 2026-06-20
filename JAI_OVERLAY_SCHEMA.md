@@ -8,7 +8,7 @@
 
 ## 0. Purpose
 
-`JAI_OVERLAY_SCHEMA.md` is the **formal contract** for what a local `<project>/jai/` overlay MUST contain, MAY contain, and MUST NOT contain. Today this is implicit in [`JAI_PROJECT_IMPLEMENTATION_PLAN.md`](file:///C:/Users/Mitch/.claude/jai-standard/JAI_PROJECT_IMPLEMENTATION_PLAN.md). The schema makes it mechanical: a project's surface can be audited against the schema, and conformance reported as `ALIGNED` / `DRIFT_ACCEPTABLE` / `DRIFT_BLOCKING` / `DIVERGENT` per [`JAI_DRIFT_DETECTION.md`](./JAI_DRIFT_DETECTION.md).
+`JAI_OVERLAY_SCHEMA.md` is the **formal contract** for what a local `<project>/jai/` overlay MUST contain, MAY contain, and MUST NOT contain. It also defines the root assistant entrypoints (`CLAUDE.md`, `AGENTS.md`) that point agents into that overlay. Today this is implicit in [`JAI_PROJECT_IMPLEMENTATION_PLAN.md`](file:///C:/Users/Mitch/.claude/jai-standard/JAI_PROJECT_IMPLEMENTATION_PLAN.md). The schema makes it mechanical: a project's surface can be audited against the schema, and conformance reported as `ALIGNED` / `DRIFT_ACCEPTABLE` / `DRIFT_BLOCKING` / `DIVERGENT` per [`JAI_DRIFT_DETECTION.md`](./JAI_DRIFT_DETECTION.md).
 
 ## 1. Required Files (MUST)
 
@@ -24,6 +24,27 @@ A conformant `<project>/jai/` MUST contain:
 | `THREAT_MODEL.md` | Project-specific threats, assets, boundaries | Extends `policies/THREAT_MODEL_BASELINE.md`; never duplicates universal threats |
 
 **Audit semantic:** A project missing any required file is `DRIFT_BLOCKING` per [`JAI_DRIFT_DETECTION.md`](./JAI_DRIFT_DETECTION.md). Non-trivial work is halted until the missing file is created (Review Lane batch).
+
+## 1A. Root Assistant Entrypoints
+
+Root assistant entrypoints live outside `<project>/jai/` and are audited as
+pointers into the project overlay.
+
+| File | Purpose | Notes |
+|---|---|---|
+| `CLAUDE.md` | Claude/project operating entrypoint | Canonical project rules when present. May be full project guidance or a thin pointer, depending on project history. |
+| `AGENTS.md` | Codex operating entrypoint | Required for Codex-enabled projects. Must be thin, must point to root `CLAUDE.md` and/or `<project>/jai/`, and must not weaken any JAI gate. |
+
+`AGENTS.md` MUST NOT be a blind copy of `CLAUDE.md`. It should restate only the
+Codex-critical gates needed for parity: research-only means no code, approval
+is scoped and not transitive, no direct push to `main`, no merge without
+explicit approval, no deploy/rebuild/restart without explicit approval, no flag
+flip without explicit approval, and mandatory closeout after any
+file/state-changing phase.
+
+**Audit semantic:** For a Codex-enabled project, missing `AGENTS.md` is
+`DRIFT_BLOCKING` after the project declares a version that requires it. An
+`AGENTS.md` that weakens global or project JAI rules is `DIVERGENT`.
 
 ## 2. Recommended Files (SHOULD)
 
@@ -107,13 +128,14 @@ A project's surface is audited by:
 
 1. Read `<project>/jai/JAI_CONFORMANCE.md`. If absent → `DRIFT_BLOCKING`.
 2. Read `jai_standard_version` from the manifest. Look up the corresponding global version's required-file list (this schema, scoped to that version).
-3. For each required file in the schema: confirm presence in `<project>/jai/`. Missing → `DRIFT_BLOCKING`.
-4. For each recommended file: confirm presence. Missing → `DRIFT_ACCEPTABLE` (warning).
-5. For each forbidden file: confirm absence. Present → `DIVERGENT` (audit failure).
-6. For each frontmatter requirement: confirm declaration. Missing → `DRIFT_BLOCKING` if required, `DRIFT_ACCEPTABLE` if optional.
-7. Check `PROJECT_EXCEPTIONS.md` (if present): every entry must be `Narrow`, `Augment`, or `Replace-with-Exception` per [`JAI_OVERRIDE_CONTRACT.md`](./JAI_OVERRIDE_CONTRACT.md). Any `Weaken` is flagged as the `INVALID_WEAKENING` sub-finding, which always maps to drift class `DIVERGENT` per [`JAI_OVERRIDE_CONTRACT.md §4`](./JAI_OVERRIDE_CONTRACT.md).
-8. Compute lifted-file checksums for any `<project>/jai/skills/*.skill.md` declared as lifted-from-global; compare against current global SHA. Drift → log in audit report (not blocking unless project's `JAI_CONFORMANCE.md` declares it should match).
-9. Output: per-project status report.
+3. Check root assistant entrypoints: `CLAUDE.md` if the project uses Claude and `AGENTS.md` if the project uses Codex. Missing required entrypoint → `DRIFT_BLOCKING`; weakened gates → `DIVERGENT`.
+4. For each required file in the schema: confirm presence in `<project>/jai/`. Missing → `DRIFT_BLOCKING`.
+5. For each recommended file: confirm presence. Missing → `DRIFT_ACCEPTABLE` (warning).
+6. For each forbidden file: confirm absence. Present → `DIVERGENT` (audit failure).
+7. For each frontmatter requirement: confirm declaration. Missing → `DRIFT_BLOCKING` if required, `DRIFT_ACCEPTABLE` if optional.
+8. Check `PROJECT_EXCEPTIONS.md` (if present): every entry must be `Narrow`, `Augment`, or `Replace-with-Exception` per [`JAI_OVERRIDE_CONTRACT.md`](./JAI_OVERRIDE_CONTRACT.md). Any `Weaken` is flagged as the `INVALID_WEAKENING` sub-finding, which always maps to drift class `DIVERGENT` per [`JAI_OVERRIDE_CONTRACT.md §4`](./JAI_OVERRIDE_CONTRACT.md).
+9. Compute lifted-file checksums for any `<project>/jai/skills/*.skill.md` declared as lifted-from-global; compare against current global SHA. Drift → log in audit report (not blocking unless project's `JAI_CONFORMANCE.md` declares it should match).
+10. Output: per-project status report.
 
 ## 8. Maintenance Rule
 

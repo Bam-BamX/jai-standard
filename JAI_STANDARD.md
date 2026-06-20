@@ -1,6 +1,6 @@
 # JAI Standard
 
-**Current version:** v1.7
+**Current version:** v1.8
 **Established:** 2026-05-08
 **Pilot project:** Trend Scanner v1
 **Governing document:** [JAI_GOVERNANCE_STACK.md](./JAI_GOVERNANCE_STACK.md)
@@ -48,6 +48,32 @@ A project conforms to v1.0 if:
 4. It honors the safety rules from [JAI_GOVERNANCE_STACK.md §6](./JAI_GOVERNANCE_STACK.md#6--safety-rules) when JAI workflows run.
 
 `PROJECT_EXCEPTIONS.md` is a governance addition (not yet present in Trend Scanner v1 as of 2026-05-08); the pilot's first Migration Pass will create it.
+
+---
+
+## Root assistant entrypoints
+
+JAI v1.8 recognizes root-level assistant entrypoints as part of the audited
+project surface.
+
+- `CLAUDE.md` remains the canonical Claude/project operating entrypoint when a
+  project uses Claude Code.
+- `AGENTS.md` is the canonical Codex entrypoint when a project uses Codex. It
+  must be thin: point to the project JAI framework, load the project read order,
+  and restate only the approval gates needed to prevent Codex from weakening
+  Claude/JAI discipline.
+- `AGENTS.md` must not blindly copy `CLAUDE.md`. If it repeats rules, it does
+  so only to preserve gates: research-only means no code, approval is scoped and
+  not transitive, no direct push to `main`, no merge without explicit approval,
+  no deploy/rebuild/restart without explicit approval, no flag flip without
+  explicit approval, and mandatory closeout after any file/state-changing phase.
+- If `AGENTS.md`, `CLAUDE.md`, and project `/jai/` rules overlap, the stricter
+  and narrower rule wins. `AGENTS.md` may narrow or add gates, but it may not
+  weaken global or project JAI rules.
+
+Drift audits check the root `AGENTS.md` for Codex-enabled projects. A missing
+thin entrypoint is migration drift; an entrypoint that weakens approval gates is
+divergence.
 
 ---
 

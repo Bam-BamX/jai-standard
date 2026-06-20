@@ -32,6 +32,10 @@ adopted_optional_files:              # files the project opts into per JAI_OVERL
 - [x] THREAT_MODEL.md (present, extends policies/THREAT_MODEL_BASELINE.md@vX.Y)
 - [x] JAI_CONFORMANCE.md (this file)
 
+## Root Assistant Entrypoints (per JAI_OVERLAY_SCHEMA.md §1A)
+- [x] ../CLAUDE.md (present / not applicable)
+- [x] ../AGENTS.md (present for Codex-enabled project; thin pointer; no weakened gates)
+
 ## Recommended Files (per JAI_OVERLAY_SCHEMA.md §2)
 - [ ] DECISION_LOG.md
 - [ ] CURRENT_STATE.md

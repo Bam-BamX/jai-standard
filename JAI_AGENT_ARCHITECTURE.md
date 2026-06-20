@@ -25,7 +25,8 @@ This file works alongside the rest of the global standard at `~/.claude/jai-stan
 - **[`JAI_DEV_RESPONSE_FORMAT.md`](./JAI_DEV_RESPONSE_FORMAT.md)** — Agent 1 (Builder) emits its dev report in the canonical shape defined here, specifically the ten required sections (Plain-English Summary, What This Means, What Was Touched, What Was Not Touched, Verification Performed, Risk/Scope Assessment, Pending Decisions, Recommended Next Action, Copy-Paste Operator Reply, Closeout Statement). Response modes (e.g., ST-10) defined in this file are inherited unchanged. Agent 1 does not introduce a parallel output format.
 - **[`policies/SAFETY_RULES.md`](./policies/SAFETY_RULES.md)** — Canonical S1–S8 rules. All four roles inherit S1–S8 unchanged. No role weakens, renumbers, removes, or amends any rule.
 - **[`JAI_GOVERNANCE_STACK.md`](./JAI_GOVERNANCE_STACK.md)** — §4 (Enhancement workflow) governed how this file was added (Intake → Standard Update → execute). §3 (Versioning model) classifies this addition as MINOR.
-- **[`JAI_COMMANDS.md`](./JAI_COMMANDS.md)** — Unchanged in v1.7 except for §1 file-list and Roles bullets that reference this new file. No new top-level command (§3–§15) is added. No new alias (§16) is added in this round.
+- **[`JAI_COMMANDS.md`](./JAI_COMMANDS.md)** — Command triggers and universal safety rules route work into this architecture. No top-level command (§3–§15) or alias (§16) grants permissions beyond the operator-approved gate.
+- **Root `AGENTS.md`** — Codex-enabled projects use this as a thin entrypoint into root `CLAUDE.md` and/or project `/jai/`. It does not grant additional permissions and cannot weaken any gate defined here.
 
 **Key clarification:** Nothing about this file changes existing JAI commands or aliases. The 4-role architecture is a *conceptual layer above* the existing command set: any of the §3–§15 formal commands or §16 aliases can be invoked by the Orchestrator and routed to the appropriate role; the role spec governs *how* the work is done within those commands.
 
@@ -102,6 +103,9 @@ If both conditions are not met, the Builder uses non-shell read mechanisms (file
 - No dependency installs or upgrades (`pip install`, `npm install`, `pnpm add`, `cargo add`, `uv add`, `pip/npm update`).
 - No destructive cleanup (`rm -rf`, `git reset --hard`, `git clean -f`, branch deletion, force operations) (S6).
 - No branch deletion, no commits, no pushes, no force operations.
+- No direct push to `main`.
+- No merge unless explicitly approved by the operator.
+- No deploy, rebuild, restart, runtime-state change, or flag flip unless explicitly approved by the operator.
 - No host-binding changes (no introduction of `0.0.0.0` / `:::` bindings, no port re-mapping, no move from `127.0.0.1` to a less-restrictive interface).
 - No file writes outside the approved batch.
 - No shell commands of any kind absent the dual approval gate above.
@@ -249,7 +253,7 @@ The Orchestrator aggregates all three agent outputs into a single dev response p
 - The full ten-section dev report.
 - Explicit final approval gate: `Awaiting operator "go" before any state-changing action` for Strict Lane batches; or `Complete — no operator gate required` for Fast Lane batches that did not produce state changes (e.g., review-only outputs).
 
-The operator's "go" applies only to the specific scope and lane the Orchestrator named. Approval is not transitive: a "go" on one batch does not authorize the next batch.
+The operator's "go" applies only to the specific scope and lane the Orchestrator named. Approval is not transitive: a "go" on one batch does not authorize the next batch. Commit approval does not imply push; push does not imply merge; merge does not imply deploy, rebuild, or restart; implementation approval does not imply flag-flip approval.
 
 ## 5. Lane Logic
 
@@ -277,6 +281,8 @@ A task is Strict Lane if **any** touched file, command, or downstream effect inv
 - Redis or other in-memory state (any read/write to live data).
 - Runtime state (process state, in-memory caches, IPC state).
 - Deployment (any change that affects what runs where, including CI/CD configs).
+- Deploy/rebuild/restart operations, even if no files change.
+- Flag flips or feature activation/deactivation.
 - **Host-binding changes** — any port newly bound or rebound; any move from `127.0.0.1` toward `0.0.0.0` or `:::` is treated as Strict by default per the operator's local-dev IP/port binding safety baseline.
 
 Strict Lane batches **require** the full Agent 1 → Agent 2 → Agent 3 → Orchestrator chain with operator approval at the Orchestrator gate.

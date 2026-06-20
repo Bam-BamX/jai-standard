@@ -11,6 +11,32 @@ Entry format:
 
 ---
 
+## v1.8 — 2026-06-20
+
+**Summary.** Recognizes root `AGENTS.md` as the Codex entrypoint for JAI projects, aligns Codex approval gates with Claude/JAI discipline, and adds `AGENTS.md` to drift and fleet-audit surfaces.
+
+**Added.**
+- `JAI_STANDARD.md` — new "Root assistant entrypoints" section defining `AGENTS.md` as the Codex entrypoint for Codex-enabled projects.
+- `JAI_OVERLAY_SCHEMA.md` — new root assistant entrypoint schema for `CLAUDE.md` and `AGENTS.md`.
+- `JAI_DRIFT_DETECTION.md` and `templates/drift_manifest.template.md` — root assistant entrypoint checks for manifest-backed drift audits.
+- `JAI_FLEET_SYNC_AUDIT.md` — Codex entrypoint status in fleet audit reads, notes, drift classes, and recommendations.
+
+**Changed.**
+- `JAI_VERSION` — `v1.7` → `v1.8`.
+- `JAI_COMMANDS.md` — drift audit, migration pass, and fleet sync commands now include root `AGENTS.md`; universal command safety rules now explicitly name no direct push to `main`, no merge, and no deploy/rebuild/restart/runtime/flag flip without explicit approval.
+- `JAI_PROJECT_IMPLEMENTATION_PLAN.md` — Codex-enabled projects add root `AGENTS.md` as a thin pointer over the project JAI framework; verification allows only the approved root `AGENTS.md` plus `/jai/` changes.
+- `policies/WORKFLOW_RULES.md` — plans are required for root `AGENTS.md` changes; approval is explicitly non-transitive across commit, push, merge, deploy/rebuild/restart, and flag flips.
+- `JAI_AGENT_ARCHITECTURE.md` — Builder and Orchestrator gates now include direct-main, merge, deploy/rebuild/restart/runtime, and flag-flip restrictions.
+- `JAI_DEV_RESPONSE_FORMAT.md` — closeout requirements now explicitly include merge, deploy/rebuild/restart, runtime-state, flag-flip, remaining-gate, and recommended-next-action status.
+
+**Removed.** N/A.
+
+**Source.** Operator-approved Codex parity edit phase, 2026-06-20. Goal: Codex must follow the same approval gates as Claude, especially research-only means no code, approval is scoped and not transitive, no direct push to main, no merge/deploy/rebuild/restart/flag flip without explicit approval, and mandatory closeout after file/state-changing phases.
+
+**Migration.** Codex-enabled projects should add a thin root `AGENTS.md` that points to their existing project `CLAUDE.md` and/or `/jai/` framework. Do not blindly copy `CLAUDE.md`. Existing active projects other than Trend Scanner v1 require separate read-only preflight before drafting exact `AGENTS.md` files.
+
+---
+
 ## v1.7 — 2026-05-11
 
 **Summary.** Adds `JAI_AGENT_ARCHITECTURE.md` defining the four-role conceptual model under which any JAI-conformant assistant operates when a task crosses build → review → validate. The four roles — Orchestrator (Main Claude), Agent 1 (Builder), Agent 2 (Security / Risk Reviewer), Agent 3 (Test / Validation Reviewer) — are conceptual personas one Main Claude session adopts in sequence, not literal Claude Code subagent delegation. No `.claude/agents/` files, no `settings.json` changes, no hooks. Agent 2 reuses `JAI_RUNTIME_ADVISORY_REVIEWER.md` checklists in full (§1, §5, §6, §8, §9, §11, §11.6–§11.9, §13); Agent 1 reuses `JAI_DEV_RESPONSE_FORMAT.md §3` ten-section output shape in full; S1–S8 from `policies/SAFETY_RULES.md` inherited verbatim. No new top-level command in `JAI_COMMANDS.md §3–§15` and no new conversational alias in §16 — the architecture is a conceptual layer above the existing command set, not a replacement.
